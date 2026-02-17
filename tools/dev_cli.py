@@ -38,6 +38,7 @@ def handle_commands(args):
 | Command | Description |
 | :--- | :--- |
 | `doctor` | Check environment health (Python 3.12, paths, etc) |
+| `install` | Install core dependencies (pytest, pytest-mock) |
 | `start` | Run the native watcher for auto-AI processing |
 | `commands` | Show this list (use `--write` to update Docs/COMMANDS.md) |
 """
@@ -122,6 +123,18 @@ def handle_start(args):
         print(f"Executing: {cmd}")
         subprocess.run(cmd, shell=True, cwd=cwd)
 
+def handle_install(args):
+    print("Installing ClauDeus dependencies...")
+    try:
+        subprocess.run([sys.executable, "-m", "pip", "install", "pytest", "pytest-mock"], check=True)
+        print("✅ Installation complete.")
+    except subprocess.CalledProcessError as e:
+        log_format(
+            "Installation failed",
+            "Check your internet connection or pip configuration.",
+            str(e)
+        )
+
 def main():
     parser = argparse.ArgumentParser(description="ClauDeus Dev CLI", add_help=False)
     parser.add_argument("command", nargs="?", default="help")
@@ -138,10 +151,12 @@ def main():
         handle_diag(unknown)
     elif args.command == "release-check":
         handle_release_check(unknown)
+    elif args.command == "install":
+        handle_install(unknown)
     elif args.command == "commands":
         handle_commands(unknown)
     else:
-        print("Usage: dev {doctor|start|smoke|diag|release-check|commands} [options]")
+        print("Usage: dev {doctor|install|start|smoke|diag|release-check|commands} [options]")
         print("Example: dev doctor --strict")
 
 if __name__ == "__main__":
