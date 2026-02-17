@@ -29,12 +29,14 @@ If `release-check` fails or functionality is broken on `main`.
 
 **Step 1: Check Tags**
 ```powershell
+git fetch --tags
 git tag -n   # List versions
 ```
 
-**Step 2: Revert to Last Stable (e.g., v0.1.0)**
+**Step 2: Revert to Last Stable (v0.1.0)**
 ```powershell
 git checkout v0.1.0
+# (Optional) Verify functionality
 .\dev.ps1 bootstrap
 .\dev.ps1 release-check
 ```

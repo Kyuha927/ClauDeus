@@ -6,11 +6,17 @@
 - **WSL (Ubuntu)**: **OPTIONAL** (space reserved)
 - **Completion**: `release-check` green + `git status --porcelain` clean
 
+## Tag Immutability
+Release tags are **immutable**.
+- Never force-update an existing release tag (e.g., `v0.1.0`).
+- If changes are needed, create a **new tag** (`v0.1.1` / `v0.1.0-hotfix.1`).
+
 ---
 
 완성 기준: `release-check` green + working tree clean.
 
 ## Windows (PowerShell) — Fresh venv
+- **Version**: `v0.1.0` (Commit: `0ff2aeb`)
 - **Python**: 3.12.10
 - **Commands (fixed order)**:
   - `.\dev.ps1 doctor --strict`: PASS (ExitCode 0)
