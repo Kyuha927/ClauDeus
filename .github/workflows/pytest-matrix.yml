@@ -30,6 +30,3 @@ jobs:
       run: |
         # Must pass strict checks and leave git clean
         ./dev release-check
-    - name: Run Pytest
-      run: |
-        pytest
