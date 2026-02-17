@@ -19,14 +19,17 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
+    - name: Bootstrap (Strict Setup)
       run: |
-        python -m pip install --upgrade pip
-        pip install pytest pytest-mock
-    - name: Run Doctor (Validation)
-      run: |
+        # Force strict python check and venv creation (simulated)
+        # CI environment already has python, but we run bootstrap to ensure deps/pip
         chmod +x dev
-        ./dev doctor
+        ./dev bootstrap
+
+    - name: Release Check (Quality Gate)
+      run: |
+        # Must pass strict checks and leave git clean
+        ./dev release-check
     - name: Run Pytest
       run: |
         pytest
