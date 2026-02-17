@@ -23,6 +23,10 @@ ClauDeus는 여러 AI 에이전트를 충돌 없이 병렬 운영하고, 결과�
 ./dev release-check
 ```
 
+### Checks (fast vs strict)
+- During development: `./dev dev-check` (fast loop)
+- Before release: `./dev release-check` (strict: Python 3.12.x + clean tree)
+
 > **Note**: If anything fails, follow SSOT: **[Docs/setup/python-3.12.md](Docs/setup/python-3.12.md)**.
 > Troubleshooting entry: **[Docs/DOCTOR_VERSION_TROUBLESHOOTING.md](Docs/DOCTOR_VERSION_TROUBLESHOOTING.md)**.
 

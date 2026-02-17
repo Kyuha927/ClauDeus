@@ -2,6 +2,7 @@ import sys
 import argparse
 import platform
 import subprocess
+import os
 
 def log_format(cause, next_step, log_msg):
     print(f"\n[Cause]\n{cause}")
@@ -42,9 +43,15 @@ def handle_commands(args):
 | :--- | :--- |
 | `doctor` | Check environment health (Python 3.12, paths, etc) |
 | `bootstrap` | **Onboarding**: Check Py3.12 + Ensure venv + Install deps |
+| `dev-check` | **Fast Loop**: doctor(msg) + pytest + smoke (dirty allowed) |
+| `release-check` | **Strict Gate**: Py3.12 strict + clean tree + evidence |
 | `install` | (Legacy) Install core dependencies |
 | `start` | Run the native watcher for auto-AI processing |
 | `commands` | Show this list (use `--write` to update Docs/COMMANDS.md) |
+
+## Check Policy
+- `dev-check`: fast developer loop (non-strict, dirty allowed)
+- `release-check`: strict release gate (Python 3.12.x only, clean working tree required)
 """
     if write_mode:
         import os
@@ -99,6 +106,32 @@ def handle_release_check(args):
     subprocess.run(["git", "status"], check=True)
     
     print("\n✅ Release Check Completed Successfully.")
+
+def handle_dev_check(args):
+    print("== ./dev dev-check ==")
+    
+    # [DEV] step: ./dev doctor
+    print("[DEV] step: ./dev doctor ... ", end="")
+    handle_doctor([]) # non-strict
+    # handle_doctor prints "✅ Environment is healthy!" which puts a newline.
+    # We might want to suppress that or just let it be. 
+    # handle_doctor exits/returns. 
+    # strictly speaking handle_doctor prints output. 
+    # Let's just call it. It prints its own status.
+    
+    # [DEV] step: python -m pytest -q
+    print("[DEV] step: python -m pytest -q ...")
+    try:
+        subprocess.run([sys.executable, "-m", "pytest", "-q"], check=True)
+    except subprocess.CalledProcessError:
+        print("❌ Pytest failed.")
+        sys.exit(1)
+
+    # [DEV] step: ./dev smoke
+    print("[DEV] step: ./dev smoke ...")
+    handle_smoke([])
+    
+    print("Result: PASS")
 
 def handle_start(args):
     import os
@@ -208,6 +241,8 @@ def main():
         handle_diag(unknown)
     elif args.command == "release-check":
         handle_release_check(unknown)
+    elif args.command == "dev-check":
+        handle_dev_check(unknown)
     elif args.command == "bootstrap":
         handle_bootstrap(unknown)
     elif args.command == "install":
