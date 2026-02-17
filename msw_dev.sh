@@ -45,12 +45,26 @@ case "$cmd" in
     log "run start: scan_msw.py"
     $PY "$SRC/scan_msw.py" | tee -a .logs/run.log
     ;;
-  test)
-    log "test start: checking moltbot integrity"
-    $PY -c "import anthropic; print('anthropic lib ok')" | tee -a .logs/test.log
+  smoke)
+    log "smoke start"
+    $PY --version && log "smoke ok"
+    ;;
+  diag)
+    diag_file=".logs/diag_$(date +%Y%m%d_%H%M%S).log"
+    log "diagnostic start -> $diag_file"
+    {
+      echo "=== System Info ==="
+      date
+      uname -a
+      echo "=== Environment ==="
+      env | grep -E 'WSL|SHELL|PATH'
+      echo "=== Doctor Output ==="
+      ./msw_dev.sh doctor
+    } > "$diag_file" 2>&1
+    log "diagnostic completed: $diag_file"
     ;;
   *)
-    echo "Usage: ./dev {doctor|run|test}"
+    echo "Usage: ./dev {doctor|run|test|smoke|diag}"
     exit 1
     ;;
 esac

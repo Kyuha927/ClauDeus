@@ -1,0 +1,14 @@
+[
+  {
+    "id": "task_1",
+    "model": "gpt-4-turbo",
+    "context": "prompts/task1.md",
+    "output_log": ".logs/task1.log"
+  },
+  {
+    "id": "task_2",
+    "model": "claude-3-opus",
+    "context": "prompts/task2.md",
+    "output_log": ".logs/task2.log"
+  }
+]

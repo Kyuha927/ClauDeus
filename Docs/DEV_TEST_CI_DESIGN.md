@@ -11,9 +11,9 @@
 |:---|:---|:---|:---:|
 | `doctor` | 환경 진단 | `command -v`, 파일 존재 여부 | P0 |
 | `diag` | 환경 스냅샷 | `node -v`, `python3 --version`, `git` | P0 |
-| `test` | 무결성 검증 | Python import, npm test | P1 |
+| `test` | 무결성 검증 | Pytest suite, Python import | P1 |
 | `run` | 실행 | 서브프로세스 stdout/stderr | P1 |
-| `msw:link` | 심링크 관리 | `ln -s`, `readlink` | P1 |
+| `link` | 심링크 관리 | `ln -s`, `readlink` | P1 |
 | `clone` | 프로젝트 복제 | `git clone`, 디렉토리 생성 | P2 |
 | `rollback` | 롤백 | `git revert`, `git stash` | P2 |
 | `smoke` | 통합 점검 | 전체 파이프라인 (doctor→test→run) | P2 |
@@ -91,11 +91,10 @@ export HOME="$MOCK_HOME"
 
 | 옵션 | 장점 | 단점 | 추천 |
 |:---|:---|:---|:---:|
-| **bats-core** | Bash 네이티브, 가볍고 CI 친화적 | 복잡한 assertion 한계 | ✅ |
-| **shunit2** | xUnit 스타일, 익숙한 패턴 | 설치 필요, 느림 | △ |
-| **직접 작성** | 의존성 0 | 유지보수 비용 증가 | ❌ |
+| **pytest** | 강력한 Mocking, Python 생태계 밀착 | Bash 테스트 시 subprocess 래핑 필요 | ✅ |
+| **unittest** | 표준 라이브러리 | Fixture 관리의 번거로움 | △ |
 
-**결론**: `bats-core` 사용. `npm install --save-dev bats` 로 프로젝트 내 관리.
+**결론**: `pytest` 사용. `pip install pytest pytest-mock` 으로 관리.
 
 ---
 
@@ -134,14 +133,13 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Create venv
-        run: python3 -m venv .venv
-
-      - name: Install bats
-        run: npm install --save-dev bats
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-mock
 
       - name: Run tests
-        run: npx bats tests/
+        run: pytest tests/
 
       - name: Upload logs on failure
         if: failure()
@@ -165,11 +163,10 @@ jobs:
 Codex가 이 설계를 구현할 때 따라야 할 순서:
 
 - [ ] `tests/` 디렉토리 생성
-- [ ] `bats` 설치 (`npm install --save-dev bats`)
-- [ ] `tests/doctor.bats` 작성 (TC-DOC-01 ~ 07)
-- [ ] `tests/diag.bats` 작성 (TC-DIAG-01 ~ 03)
-- [ ] `tests/run.bats` 작성 (TC-RUN-01 ~ 03)
-- [ ] `tests/helpers/` 에 mock 유틸리티 스크립트 배치
-- [ ] `.github/workflows/dev-ci.yml` 생성
-- [ ] 로컬에서 `npx bats tests/` 전체 통과 확인
+- [ ] `pytest` 환경 설정 (`conftest.py`)
+- [ ] `tests/test_doctor.py` 작성
+- [ ] `tests/test_diag.py` 작성
+- [ ] `tests/test_run.py` 작성
+- [ ] `.github/workflows/pytest-matrix.yml` 생성
+- [ ] 로컬에서 `pytest` 전체 통과 확인
 - [ ] PR 제출 후 CI green 확인
