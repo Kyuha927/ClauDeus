@@ -28,6 +28,9 @@ def handle_doctor(args):
         print("✅ Environment is healthy!")
         sys.exit(0)
     else:
+        if "--strict" in args:
+            print("❌ Strict mode enabled: Environment check failed.")
+            sys.exit(1)
         print("⚠️ Environment has warnings.")
         sys.exit(0) # Per policy: fail/warn but allow execution if possible
 
