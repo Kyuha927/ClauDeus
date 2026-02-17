@@ -1,4 +1,4 @@
-# msw-vampser
+# ClauDeus
 
 AI 모델 병렬 실행 및 자동화 툴킷입니다.
 
