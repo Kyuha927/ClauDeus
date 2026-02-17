@@ -14,7 +14,12 @@ if (Get-Command "py" -ErrorAction SilentlyContinue) {
 # 2. Invoke dev_cli.py with original arguments
 $scriptPath = Join-Path $PSScriptRoot "tools/dev_cli.py"
 
-if ($pyCmd -eq "py -3.12") {
+# Priority: .venv > py -3.12 > python
+$venvPython = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
+
+if (Test-Path $venvPython) {
+    & $venvPython $scriptPath $argsArr
+} elseif ($pyCmd -eq "py -3.12") {
     & py -3.12 $scriptPath $argsArr
 } else {
     & python $scriptPath $argsArr

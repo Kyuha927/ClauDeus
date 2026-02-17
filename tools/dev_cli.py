@@ -41,7 +41,8 @@ def handle_commands(args):
 | Command | Description |
 | :--- | :--- |
 | `doctor` | Check environment health (Python 3.12, paths, etc) |
-| `install` | Install core dependencies (pytest, pytest-mock) |
+| `bootstrap` | **Onboarding**: Check Py3.12 + Ensure venv + Install deps |
+| `install` | (Legacy) Install core dependencies |
 | `start` | Run the native watcher for auto-AI processing |
 | `commands` | Show this list (use `--write` to update Docs/COMMANDS.md) |
 """
@@ -127,17 +128,69 @@ def handle_start(args):
         print(f"Executing: {cmd}")
         subprocess.run(cmd, shell=True, cwd=cwd)
 
-def handle_install(args):
-    print("Installing ClauDeus dependencies...")
-    try:
-        subprocess.run([sys.executable, "-m", "pip", "install", "pytest", "pytest-mock"], check=True)
-        print("✅ Installation complete.")
-    except subprocess.CalledProcessError as e:
+def handle_bootstrap(args):
+    print("== ./dev bootstrap ==")
+    print("Policy: Windows=required, WSL=optional, Python=3.12.x(strict)")
+
+    # [1/4] Check Python 3.12.x
+    print("[1/4] Check Python 3.12.x ... ", end="")
+    if not check_version():
+        print("FAIL")
         log_format(
-            "Installation failed",
-            "Check your internet connection or pip configuration.",
-            str(e)
+            "Python version mismatch.",
+            "Follow SSOT setup: Docs/setup/python-3.12.md",
+            f"Current: {sys.version.split()[0]}"
         )
+        sys.exit(1)
+    print("PASS")
+
+    # [2/4] Ensure venv (.venv)
+    print("[2/4] Ensure venv (.venv) ... ", end="")
+    venv_path = ".venv"
+    if not os.path.exists(venv_path):
+        try:
+            subprocess.run([sys.executable, "-m", "venv", venv_path], check=True)
+            print("CREATED")
+        except subprocess.CalledProcessError as e:
+            print("FAIL")
+            log_format("Venv creation failed", "Check permissions or python install", str(e))
+            sys.exit(1)
+    else:
+        print("OK")
+
+    # Determine pip/python paths inside venv
+    if platform.system() == "Windows":
+        venv_python = os.path.join(venv_path, "Scripts", "python.exe")
+        venv_pip = os.path.join(venv_path, "Scripts", "pip.exe")
+    else:
+        venv_python = os.path.join(venv_path, "bin", "python")
+        venv_pip = os.path.join(venv_path, "bin", "pip")
+
+    # [3/4] Upgrade pip
+    print("[3/4] Upgrade pip ... ", end="")
+    try:
+        subprocess.run([venv_python, "-m", "pip", "install", "--upgrade", "pip"], 
+                       check=True, capture_output=True)
+        print("PASS")
+    except subprocess.CalledProcessError:
+        print("FAIL (Continuing...)")
+
+    # [4/4] Install deps
+    print("[4/4] Install deps ... ", end="")
+    try:
+        subprocess.run([venv_python, "-m", "pip", "install", "pytest", "pytest-mock"], 
+                       check=True, capture_output=True)
+        print("PASS")
+    except subprocess.CalledProcessError as e:
+        print("FAIL")
+        log_format("Dependency install failed", "Check network/pip", str(e))
+        sys.exit(1)
+
+    print("Next: run ./dev release-check")
+
+def handle_install(args):
+    # Backward compatibility
+    handle_bootstrap(args)
 
 def main():
     parser = argparse.ArgumentParser(description="ClauDeus Dev CLI", add_help=False)
@@ -155,12 +208,14 @@ def main():
         handle_diag(unknown)
     elif args.command == "release-check":
         handle_release_check(unknown)
+    elif args.command == "bootstrap":
+        handle_bootstrap(unknown)
     elif args.command == "install":
         handle_install(unknown)
     elif args.command == "commands":
         handle_commands(unknown)
     else:
-        print("Usage: dev {doctor|install|start|smoke|diag|release-check|commands} [options]")
+        print("Usage: dev {doctor|bootstrap|start|smoke|diag|release-check|commands} [options]")
         print("Example: dev doctor --strict")
 
 if __name__ == "__main__":

@@ -10,7 +10,23 @@ ClauDeus는 여러 AI 에이전트를 충돌 없이 병렬 운영하고, 결과�
 - **검증 루프**: `doctor` → `smoke` → `pytest`(또는 `release-check`) 순서로 깨짐을 빠르게 잡습니다.
 - **실패 표준 포맷**: 실패 시 `Cause` / `Next` / `Log`로 원인·다음액션·로그 경로를 고정 출력합니다.
 
-## 🚀 Quick Start
+## 🚀 Quickstart (SSOT, Python 3.12.x Strict)
+### Windows (PowerShell)
+```powershell
+.\dev.ps1 bootstrap
+.\dev.ps1 release-check
+```
+
+### WSL (Ubuntu)
+```bash
+./dev bootstrap
+./dev release-check
+```
+
+> **Note**: If anything fails, follow SSOT: **[Docs/setup/python-3.12.md](Docs/setup/python-3.12.md)**.
+> Troubleshooting entry: **[Docs/DOCTOR_VERSION_TROUBLESHOOTING.md](Docs/DOCTOR_VERSION_TROUBLESHOOTING.md)**.
+
+## 🛠️ Usage
 ```bash
 ./dev doctor
 ./dev smoke
