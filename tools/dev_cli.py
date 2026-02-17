@@ -87,6 +87,7 @@ def handle_diag(args):
 
 def handle_release_check(args):
     print("🚀 Starting Release Check (One-shot validation)...")
+    print(f"Python: {sys.version.split()[0]} ({sys.executable})")
     print("Policy: Windows=required, WSL=optional, Python=3.12.x(strict)")
     # 1. Doctor --strict
     print("\n[Step 1/4] Doctor Check...")

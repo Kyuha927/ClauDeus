@@ -3,6 +3,14 @@
 > **Purpose**: Immediate actions for post-release issues.
 > **Scope**: Production/Release breakage.
 
+## ⚡ 60s Triage
+1) **Check policy + python**: `.\dev.ps1 doctor --strict`
+2) **Check dirty**: `git status --porcelain`
+3) **Get logs**: `.\dev.ps1 diag`
+4) **Repair env**: `.\dev.ps1 bootstrap`
+5) **Re-run gate**: `.\dev.ps1 release-check`
+6) **Rollback**: `git checkout v0.1.0`
+
 ## 1. Diagnose (Fail-Fast)
 Run these commands to identify the failure layer.
 
