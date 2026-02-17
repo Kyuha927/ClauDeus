@@ -26,13 +26,13 @@ def handle_doctor(args):
     # Add more checks here (dependencies, configs)
     if v_ok:
         print("✅ Environment is healthy!")
-        sys.exit(0)
+        return
     else:
         if "--strict" in args:
             print("❌ Strict mode enabled: Environment check failed.")
             sys.exit(1)
         print("⚠️ Environment has warnings.")
-        sys.exit(0) # Per policy: fail/warn but allow execution if possible
+        return # Per policy: fail/warn but allow execution if possible
 
 def handle_commands(args):
     write_mode = "--write" in args
@@ -79,13 +79,14 @@ def handle_diag(args):
 
 def handle_release_check(args):
     print("🚀 Starting Release Check (One-shot validation)...")
+    print("Policy: Windows=required, WSL=optional, Python=3.12.x(strict)")
     # 1. Doctor --strict
     print("\n[Step 1/4] Doctor Check...")
     handle_doctor(["--strict"])
     
     # 2. Pytest
     print("\n[Step 2/4] Running Pytest...")
-    subprocess.run(["pytest"], check=True)
+    subprocess.run([sys.executable, "-m", "pytest"], check=True)
     
     # 3. Smoke
     print("\n[Step 3/4] Running Smoke Tests...")
