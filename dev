@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# ClauDeus dev - Bash Entry Point (WSL/Linux)
+
+PYTHON="python3"
+if command -v python3.12 >/dev/null 2>&1; then
+    PYTHON="python3.12"
+fi
+
+$PYTHON tools/dev_cli.py "$@"

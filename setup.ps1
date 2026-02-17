@@ -1,6 +1,6 @@
-# 🚀 Antigravity Multi-Model Setup
+# 🚀 ClauDeus: Multi-Model AI Setup
 
-Write-Host "Setting up Antigravity Native Engine..." -ForegroundColor Cyan
+Write-Host "Setting up ClauDeus: Multi-Model Engine..." -ForegroundColor Cyan
 
 # 1. Create Folder Structure
 $folders = "prompts", ".logs", "tools", ".agent/workflows", "Docs"

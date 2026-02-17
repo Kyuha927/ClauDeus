@@ -7,10 +7,13 @@ codex_help_utf8.txt
 codex_exec_help.txt
 codex_exec_help_utf8.txt
 .gemini/antigravity/brain/
+.dev/
 
 # Python
+.venv/
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # OS
 .DS_Store
