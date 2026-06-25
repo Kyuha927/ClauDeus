@@ -34,7 +34,7 @@ Prove that ClauDeus can connect the portfolio into one ordinary-user workflow.
 python3 scripts/runtime_smoke.py
 
 # daily mobile inbox and PWA
-python3 -m pytest -q tests/test_mobile_pwa_files.py
+python3 mobile_pwa/check_mobile_pwa.py
 bash connectors/google_drive/run_google_drive_poll_ingest.sh --dry-run --once
 python3 connectors/google_drive/mobile_event_to_dashboard_card.py
 
