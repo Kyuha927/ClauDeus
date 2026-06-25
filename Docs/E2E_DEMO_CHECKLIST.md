@@ -10,14 +10,15 @@ Prove that ClauDeus can connect the portfolio into one ordinary-user workflow.
 1. ClauDeus context pack
 2. ClauDeus handoff packet
 3. Runtime smoke in copilot
-4. Mobile inbox dry run in daily
-5. Mobile event to dashboard card conversion
-6. Dashboard source merge and render
-7. Skill validation and manifest generation
-8. Playbook validation and summary
-9. Profile dry-run install
-10. Skill archive inventory
-11. Knowledge candidate validation
+4. Mobile PWA shell check in daily
+5. Mobile inbox dry run in daily
+6. Mobile event to dashboard card conversion
+7. Dashboard source merge and render
+8. Skill validation and manifest generation
+9. Playbook validation and summary
+10. Profile dry-run install
+11. Skill archive inventory
+12. Knowledge candidate validation
 ```
 
 ## Commands
@@ -32,7 +33,8 @@ Prove that ClauDeus can connect the portfolio into one ordinary-user workflow.
 # copilot runtime
 python3 scripts/runtime_smoke.py
 
-# daily mobile inbox
+# daily mobile inbox and PWA
+python3 -m pytest -q tests/test_mobile_pwa_files.py
 bash connectors/google_drive/run_google_drive_poll_ingest.sh --dry-run --once
 python3 connectors/google_drive/mobile_event_to_dashboard_card.py
 
@@ -65,6 +67,7 @@ python3 tools/validate_source_candidate.py packets/ai-workos-positioning/candida
 CONTEXT_PACK_READY
 HANDOFF_PACKET_READY
 RUNTIME_SMOKE_OK
+MOBILE_PWA_READY
 MOBILE_INBOX_CHECK_OK
 MOBILE_DASHBOARD_CARDS_READY
 DASHBOARD_SOURCES_MERGED
