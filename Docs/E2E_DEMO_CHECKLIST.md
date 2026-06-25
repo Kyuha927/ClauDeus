@@ -11,12 +11,13 @@ Prove that ClauDeus can connect the portfolio into one ordinary-user workflow.
 2. ClauDeus handoff packet
 3. Runtime smoke in copilot
 4. Mobile inbox dry run in daily
-5. Dashboard render in obsidian_dashboard_os
-6. Skill validation in studio-agent
-7. Playbook validation in agency-runtime
-8. Profile dry-run in codex-global-config
-9. Skill inventory in codexskills
-10. Knowledge promotion rules in knowledge-feeder-vault
+5. Mobile event to dashboard card conversion
+6. Dashboard source merge and render
+7. Skill validation and manifest generation
+8. Playbook validation and summary
+9. Profile dry-run install
+10. Skill archive inventory
+11. Knowledge candidate validation
 ```
 
 ## Commands
@@ -36,14 +37,16 @@ bash connectors/google_drive/run_google_drive_poll_ingest.sh --dry-run --once
 python3 connectors/google_drive/mobile_event_to_dashboard_card.py
 
 # dashboard
-python3 tools/render_dashboard_cards.py
-python3 tools/merge_dashboard_sources.py
+python3 tools/merge_dashboard_sources.py demo_data/dashboard_cards.json --out demo_data/dashboard_cards.merged.json
+python3 tools/render_dashboard_cards.py --in demo_data/dashboard_cards.merged.json
 
 # skills
 python3 tools/validate_skill.py skills/context-memory
+python3 tools/build_skill_manifest.py
 
 # playbooks
 python3 tools/validate_playbook.py playbooks/pm-agent.json
+python3 tools/check_playbook_files.py playbooks/pm-agent.json
 python3 tools/playbook_summary.py playbooks/pm-agent.json
 
 # profile pack
@@ -51,6 +54,9 @@ bash scripts/install_profile.sh vm --dry-run
 
 # skill archive
 python3 tools/build_skill_inventory.py
+
+# knowledge feeder
+python3 tools/validate_source_candidate.py <candidate.json>
 ```
 
 ## Success markers
@@ -61,11 +67,17 @@ HANDOFF_PACKET_READY
 RUNTIME_SMOKE_OK
 MOBILE_INBOX_CHECK_OK
 MOBILE_DASHBOARD_CARDS_READY
-DASHBOARD_RENDER_OK
 DASHBOARD_SOURCES_MERGED
+DASHBOARD_RENDER_OK
 SKILL_VALID
+SKILLS_MANIFEST_READY
 PLAYBOOK_VALID
 PLAYBOOK_SUMMARY_READY
 PROFILE_DRY_RUN_OK
 SKILL_INVENTORY_READY
+SOURCE_CANDIDATE_VALID
 ```
+
+## Known follow-up
+
+The knowledge feeder validation command needs a real candidate JSON file. Until then, treat it as a schema/tool smoke target rather than a required demo step.
