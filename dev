@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 # ClauDeus dev - Bash Entry Point (WSL/Linux)
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON="python3"
-if command -v python3.12 >/dev/null 2>&1; then
+
+if [[ -x "$ROOT_DIR/.venv/bin/python" ]]; then
+    PYTHON="$ROOT_DIR/.venv/bin/python"
+elif command -v python3.12 >/dev/null 2>&1; then
     PYTHON="python3.12"
 fi
 
 case "${1:-}" in
   context-pack|handoff-plan|provider-check|mobile-inbox-check|portfolio-status|skill-suggest|skill-approve)
-    $PYTHON tools/dev_v2_cli.py "$@"
+    "$PYTHON" "$ROOT_DIR/tools/dev_v2_cli.py" "$@"
     ;;
   *)
-    $PYTHON tools/dev_cli.py "$@"
+    "$PYTHON" "$ROOT_DIR/tools/dev_cli.py" "$@"
     ;;
 esac
