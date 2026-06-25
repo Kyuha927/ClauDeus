@@ -3,7 +3,6 @@
 $argsArr = $args
 $pyCmd = "python"
 
-# 1. Try py -3.12 first
 if (Get-Command "py" -ErrorAction SilentlyContinue) {
     $check = & py -3.12 -c "import sys; print(sys.version_info.major == 3 and sys.version_info.minor == 12)" 2>$null
     if ($check -eq "True") {
@@ -11,10 +10,13 @@ if (Get-Command "py" -ErrorAction SilentlyContinue) {
     }
 }
 
-# 2. Invoke dev_cli.py with original arguments
-$scriptPath = Join-Path $PSScriptRoot "tools/dev_cli.py"
+$v2Commands = @("context-pack", "handoff-plan", "provider-check", "mobile-inbox-check", "portfolio-status", "skill-suggest", "skill-approve")
+$entry = "tools/dev_cli.py"
+if ($argsArr.Count -gt 0 -and $v2Commands -contains $argsArr[0]) {
+    $entry = "tools/dev_v2_cli.py"
+}
 
-# Priority: .venv > py -3.12 > python
+$scriptPath = Join-Path $PSScriptRoot $entry
 $venvPython = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
 
 if (Test-Path $venvPython) {
