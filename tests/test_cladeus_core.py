@@ -39,3 +39,18 @@ def test_portfolio_components_have_roles():
 def test_slug_fallback():
     assert cladeus_core._slug("") == "task"
     assert cladeus_core._slug("hello world") == "hello-world"
+
+
+def test_stamp_changes_between_calls():
+    first = cladeus_core._stamp()
+    second = cladeus_core._stamp()
+    assert first != second
+    assert first.isdigit()
+    assert second.isdigit()
+
+
+def test_provider_check_reports_provider_and_platform_sections():
+    result = cladeus_core.provider_check()
+    assert "providers" in result
+    assert "platform_tools" in result
+    assert "codex_cli" in result["providers"]
