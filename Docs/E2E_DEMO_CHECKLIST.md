@@ -56,7 +56,7 @@ bash scripts/install_profile.sh vm --dry-run
 python3 tools/build_skill_inventory.py
 
 # knowledge feeder
-python3 tools/validate_source_candidate.py <candidate.json>
+python3 tools/validate_source_candidate.py packets/ai-workos-positioning/candidate.json
 ```
 
 ## Success markers
@@ -80,4 +80,4 @@ SOURCE_CANDIDATE_VALID
 
 ## Known follow-up
 
-The knowledge feeder validation command needs a real candidate JSON file. Until then, treat it as a schema/tool smoke target rather than a required demo step.
+Run each command inside its own repository root. The ClauDeus umbrella repo documents the sequence, but the component commands belong to their component repos.
