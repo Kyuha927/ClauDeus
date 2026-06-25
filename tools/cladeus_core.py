@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 import shutil
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
 
@@ -21,6 +20,7 @@ PORTFOLIO_COMPONENTS = [
     {"repo": "Kyuha927/codexskills", "role": "skill_archive", "label": "Skill Archive"},
     {"repo": "Kyuha927/knowledge-feeder-vault", "role": "knowledge", "label": "Knowledge Feeder"},
 ]
+
 
 @dataclass(slots=True)
 class HandoffPacket:
@@ -54,8 +54,12 @@ def _write(path: Path, content: str) -> Path:
 
 
 def _slug(text: str) -> str:
-    value = re.sub(r"[^a-zA-Z0-9가-힣_.-]+", "-", text.strip()).strip("-")
+    value = re.sub(r"[^a-zA-Z0-9가-힣_.-]+", "-", str(text or "").strip()).strip("-")
     return value[:80] or "task"
+
+
+def _stamp() -> str:
+    return str(time.time_ns())
 
 
 def build_context_pack(task: str = "", project: str = "default", output: str = "CONTEXT_PACK.md") -> Path:
@@ -66,7 +70,7 @@ def build_context_pack(task: str = "", project: str = "default", output: str = "
         "",
         f"- generated_at: `{time.strftime('%Y-%m-%d %H:%M:%S')}`",
         f"- project: `{project_slug}`",
-        f"- task: `{task.strip() or 'continue current work'}`",
+        f"- task: `{str(task).strip() or 'continue current work'}`",
         "",
         "## Operating contract",
         "",
@@ -92,12 +96,13 @@ def build_context_pack(task: str = "", project: str = "default", output: str = "
 
 
 def build_handoff_plan(source: str = "user", target: str = "executor", project: str = "default", summary: str = "") -> Path:
+    stamp = _stamp()
     packet = HandoffPacket(
         source=source,
         target=target,
         project_slug=_slug(project),
-        session_id=f"manual-{int(time.time())}",
-        turn_id=f"turn-{int(time.time())}",
+        session_id=f"manual-{stamp}",
+        turn_id=f"turn-{stamp}",
         summary=summary or "Continue the current ClauDeus work from the attached context pack.",
         next_actions=[
             "Read CONTEXT_PACK.md",
@@ -112,26 +117,35 @@ def build_handoff_plan(source: str = "user", target: str = "executor", project: 
 
 
 def provider_check() -> dict[str, object]:
-    checks = {
+    providers = {
         "codex_cli": shutil.which("codex") is not None,
-        "git": shutil.which("git") is not None,
-        "python": shutil.which("python") is not None or shutil.which("python3") is not None,
         "antigravity_cli": shutil.which("antigravity") is not None or shutil.which("ag") is not None,
     }
-    result = {"ok": any(checks.values()), "checks": checks}
+    platform_tools = {
+        "git": shutil.which("git") is not None,
+        "python": shutil.which("python") is not None or shutil.which("python3") is not None,
+    }
+    result = {
+        "ok": any(providers.values()),
+        "providers": providers,
+        "platform_tools": platform_tools,
+        "note": "ok means at least one provider adapter entrypoint was found; platform tools are reported separately.",
+    }
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return result
 
 
 def mobile_inbox_check() -> dict[str, object]:
-    candidates = [
+    local_candidates = [
         REPO_ROOT / "connectors" / "google_drive" / "google_drive_poll_ingest.py",
         REPO_ROOT / "Docs" / "MOBILE_INBOX_CONNECTOR.md",
         REPO_ROOT / "DEVELOPMENT_START.md",
     ]
     result = {
-        "ok": any(p.exists() for p in candidates),
-        "candidates": {str(p.relative_to(REPO_ROOT)): p.exists() for p in candidates},
+        "ok": any(p.exists() for p in local_candidates),
+        "local_candidates": {str(p.relative_to(REPO_ROOT)): p.exists() for p in local_candidates},
+        "external_component": "Kyuha927/daily/connectors/google_drive/google_drive_poll_ingest.py",
+        "note": "The production mobile connector lives in the daily repo; this command checks local docs plus known external component path.",
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return result
