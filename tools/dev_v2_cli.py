@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
 
 from cladeus_core import (
     build_context_pack,
@@ -12,6 +13,7 @@ from cladeus_core import (
     skill_approve,
     skill_suggest,
 )
+from context_priority import export_markdown, init_priority, load_priority, move_item, save_priority, set_enabled
 
 
 def main() -> int:
@@ -33,6 +35,19 @@ def main() -> int:
     sub.add_parser("mobile-inbox-check", help="Check mobile inbox readiness")
     sub.add_parser("portfolio-status", help="Write PORTFOLIO_STATUS.md")
 
+    pr = sub.add_parser("context-priority", help="Manage context priority order")
+    pr_sub = pr.add_subparsers(dest="priority_command", required=True)
+    pr_sub.add_parser("init", help="Create context/context_priority.json")
+    pr_sub.add_parser("list", help="Print current priority order")
+    move = pr_sub.add_parser("move", help="Move item to zero-based position")
+    move.add_argument("item_id")
+    move.add_argument("index", type=int)
+    enable = pr_sub.add_parser("enable", help="Enable a context item")
+    enable.add_argument("item_id")
+    disable = pr_sub.add_parser("disable", help="Disable a context item")
+    disable.add_argument("item_id")
+    pr_sub.add_parser("export", help="Write context/CONTEXT_PRIORITY.md")
+
     ss = sub.add_parser("skill-suggest", help="Create a skill candidate")
     ss.add_argument("name", nargs="?", default="candidate")
     ss.add_argument("--source-dir", default=".logs")
@@ -43,6 +58,7 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.command == "context-pack":
+        init_priority()
         path = build_context_pack(task=" ".join(args.task), project=args.project, output=args.output)
         print(f"CONTEXT_PACK_READY {path}")
         return 0
@@ -65,6 +81,32 @@ def main() -> int:
         path = portfolio_status()
         print(f"PORTFOLIO_STATUS_READY {path}")
         return 0
+    if args.command == "context-priority":
+        if args.priority_command == "init":
+            path = init_priority()
+            print(f"CONTEXT_PRIORITY_READY {path}")
+            return 0
+        if args.priority_command == "list":
+            data = load_priority()
+            for item in sorted(data.get("items", []), key=lambda x: int(x.get("priority", 9999))):
+                print(f"{item.get('priority')}\t{item.get('enabled', True)}\t{item.get('id')}\t{item.get('path')}")
+            return 0
+        if args.priority_command == "move":
+            path = move_item(args.item_id, args.index)
+            print(f"CONTEXT_PRIORITY_MOVED {path}")
+            return 0
+        if args.priority_command == "enable":
+            path = set_enabled(args.item_id, True)
+            print(f"CONTEXT_PRIORITY_ENABLED {path}")
+            return 0
+        if args.priority_command == "disable":
+            path = set_enabled(args.item_id, False)
+            print(f"CONTEXT_PRIORITY_DISABLED {path}")
+            return 0
+        if args.priority_command == "export":
+            path = export_markdown()
+            print(f"CONTEXT_PRIORITY_EXPORTED {path}")
+            return 0
     if args.command == "skill-suggest":
         path = skill_suggest(name=args.name, source_dir=args.source_dir)
         print(f"SKILL_CANDIDATE_READY {path}")
