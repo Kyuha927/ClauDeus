@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "updated_at": "2026-07-01T00:00:00",
+  "mode": "lower_priority_number_first",
+  "items": [
+    {"id":"product-vision","title":"Product Vision","path":"Docs/PRODUCT_VISION.md","priority":10,"enabled":true,"max_chars":5000},
+    {"id":"architecture","title":"Architecture","path":"Docs/ARCHITECTURE.md","priority":20,"enabled":true,"max_chars":5000},
+    {"id":"e2e-checklist","title":"E2E Checklist","path":"Docs/E2E_DEMO_CHECKLIST.md","priority":30,"enabled":true,"max_chars":4500},
+    {"id":"stability-sweep","title":"Stability Sweep","path":"Docs/STABILITY_SWEEP.md","priority":40,"enabled":true,"max_chars":3500}
+  ]
+}
