@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 
 from cladeus_core import (
     build_context_pack,
@@ -13,7 +12,8 @@ from cladeus_core import (
     skill_approve,
     skill_suggest,
 )
-from context_priority import export_markdown, init_priority, load_priority, move_item, save_priority, set_enabled
+from context_priority import export_markdown, init_priority, load_priority, move_item, set_enabled
+from context_priority_watch import run as watch_context_priority
 
 
 def main() -> int:
@@ -37,7 +37,7 @@ def main() -> int:
 
     pr = sub.add_parser("context-priority", help="Manage context priority order")
     pr_sub = pr.add_subparsers(dest="priority_command", required=True)
-    pr_sub.add_parser("init", help="Create context/context_priority.json")
+    pr_sub.add_parser("init", help="Create context priority file")
     pr_sub.add_parser("list", help="Print current priority order")
     move = pr_sub.add_parser("move", help="Move item to zero-based position")
     move.add_argument("item_id")
@@ -46,6 +46,12 @@ def main() -> int:
     enable.add_argument("item_id")
     disable = pr_sub.add_parser("disable", help="Disable a context item")
     disable.add_argument("item_id")
+    watch = pr_sub.add_parser("watch", help="Watch priority file and rebuild context pack")
+    watch.add_argument("--interval", type=float, default=1.0)
+    watch.add_argument("--output", default="CONTEXT_PACK.md")
+    watch.add_argument("--task", default="continue current work")
+    watch.add_argument("--project", default="default")
+    watch.add_argument("--once", action="store_true")
     pr_sub.add_parser("export", help="Write context/CONTEXT_PRIORITY.md")
 
     ss = sub.add_parser("skill-suggest", help="Create a skill candidate")
@@ -103,6 +109,14 @@ def main() -> int:
             path = set_enabled(args.item_id, False)
             print(f"CONTEXT_PRIORITY_DISABLED {path}")
             return 0
+        if args.priority_command == "watch":
+            return watch_context_priority(
+                interval=args.interval,
+                output=args.output,
+                task=args.task,
+                project=args.project,
+                once=bool(args.once),
+            )
         if args.priority_command == "export":
             path = export_markdown()
             print(f"CONTEXT_PRIORITY_EXPORTED {path}")
