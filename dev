@@ -11,7 +11,7 @@ elif command -v python3.12 >/dev/null 2>&1; then
 fi
 
 case "${1:-}" in
-  context-pack|handoff-plan|provider-check|mobile-inbox-check|portfolio-status|skill-suggest|skill-approve)
+  context-pack|handoff-plan|provider-check|mobile-inbox-check|portfolio-status|context-priority|skill-suggest|skill-approve)
     "$PYTHON" "$ROOT_DIR/tools/dev_v2_cli.py" "$@"
     ;;
   *)
