@@ -8,6 +8,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
 
+from context_priority import context_sections
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 PORTFOLIO_COMPONENTS = [
@@ -79,10 +81,16 @@ def build_context_pack(task: str = "", project: str = "default", output: str = "
         "",
     ]
 
-    for rel in ["README.md", "AGENTS.md", "DEVELOPMENT_START.md", "ROADMAP.md"]:
-        text = _read_text(REPO_ROOT / rel, max_chars=6000)
-        if text:
-            sections.extend([f"## {rel}", "", text, ""])
+    priority_sections = context_sections(repo_root=REPO_ROOT)
+    if priority_sections:
+        sections.extend(["## Priority-controlled context", ""])
+        for title, text in priority_sections:
+            sections.extend([f"### {title}", "", text, ""])
+    else:
+        for rel in ["README.md", "AGENTS.md", "DEVELOPMENT_START.md", "ROADMAP.md"]:
+            text = _read_text(REPO_ROOT / rel, max_chars=6000)
+            if text:
+                sections.extend([f"## {rel}", "", text, ""])
 
     skill_root = REPO_ROOT / "skills"
     if skill_root.exists():
