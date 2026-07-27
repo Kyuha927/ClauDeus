@@ -7,8 +7,9 @@ ClauDeus routes every model through the strongest official method exposed by its
 1. OAuth 2.0 PKCE
 2. OAuth 2.0 device flow
 3. official CLI delegated authentication
-4. API key or environment credential
-5. local anonymous runtime
+4. short-lived bearer tokens issued by trusted cloud CLIs
+5. API key or environment credential
+6. local anonymous runtime
 
 OAuth is provider/account-level. ClauDeus does not invent OAuth for providers that do not offer it, and it does not extract browser cookies or subscription tokens.
 
@@ -17,6 +18,7 @@ OAuth is provider/account-level. ClauDeus does not invent OAuth for providers th
 The implementation lives in `Kyuha927/copilot`:
 
 - `scripts/auth_broker.py`
+- `scripts/credential_command_auth.py`
 - `scripts/auth_capabilities.py`
 - `scripts/auth_matrix.py`
 - `scripts/provider_catalog.py`
@@ -44,6 +46,13 @@ ClauDeus cannot prevent an external network, provider, account, disk, or credent
 
 External tool schemas are routed only to adapters that explicitly support the `tools` option. Incompatible routes are skipped instead of silently ignoring the tools or throwing an uncontrolled `TypeError`.
 
+## Cloud OAuth paths
+
+- Google Vertex obtains a short-lived bearer token from `gcloud auth print-access-token`.
+- Azure Foundry obtains a short-lived Entra token from `az account get-access-token --resource https://cognitiveservices.azure.com`.
+- Azure can fall back to an official API key when the Entra/CLI route is unavailable.
+- CLI-issued tokens are held only in process memory, cached briefly to avoid repeated subprocess calls, and never written to credential storage or logs.
+
 ## Token-efficiency design
 
 ClauDeus reduces prompt input before compaction:
@@ -61,22 +70,25 @@ An unchanged second turn is required by CI to resend zero context-fragment token
 
 ## Verified control-plane evidence
 
-GitHub Actions `Runtime Smoke` run #72 completed successfully on 2026-07-27.
+GitHub Actions `Runtime Smoke` run #87 completed successfully on 2026-07-27 after the final Azure Entra resource correction.
 
 | Metric | Verified result |
 | --- | ---: |
 | Unhandled exceptions | 0 |
-| Context planning p50 | 9.19 ms |
+| Context planning p50 | 9.15 ms |
 | Duplicate token savings | 37.77% |
 | Task-tag token savings | 26.40% |
-| Delta planning p50 | 1.12 ms |
+| Delta planning p50 | 1.11 ms |
 | Unchanged second-turn context tokens | 0 |
 | Delta replay savings | 100% |
+| Required-context clipping p50 | 21.84 ms |
 | Required-context overflow | 0 tokens |
 | Route ranking p50 | 0.20 ms |
-| Tool planning p50 | 0.46 ms |
+| Tool planning p50 | 0.43 ms |
 | Selected tool schemas | 4 tools / 132 estimated tokens |
-| Auth resolution p50 | 1.59 μs |
+| Auth resolution p50 | 1.57 μs |
+
+The final auth matrix declared 20 provider routes. In clean CI, only the anonymous local route was ready because no external credentials or CLIs were installed; all other routes were reported as `CONFIGURATION_REQUIRED` without exposing secrets.
 
 Full runtime evidence is recorded in `Kyuha927/copilot/docs/runtime_verification_20260727.md`.
 
@@ -125,5 +137,7 @@ python scripts/benchmark_competitors.py \
 - GitHub Copilot CLI
 - Claude Code CLI
 - Antigravity CLI
+- Google Cloud CLI to Vertex AI
+- Azure CLI to Azure Foundry/OpenAI v1
 
 GitHub Copilot CLI is especially useful as a single official GitHub login surface that can expose selected OpenAI, Anthropic, Google, and Microsoft models without ClauDeus handling the subscription token itself.
