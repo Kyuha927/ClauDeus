@@ -42,6 +42,8 @@ ClauDeus cannot prevent an external network, provider, account, disk, or credent
 - raw diagnostic logs
 - safe `FAILED_CONTAINED` responses
 
+External tool schemas are routed only to adapters that explicitly support the `tools` option. Incompatible routes are skipped instead of silently ignoring the tools or throwing an uncontrolled `TypeError`.
+
 ## Token-efficiency design
 
 ClauDeus reduces prompt input before compaction:
@@ -56,6 +58,27 @@ ClauDeus reduces prompt input before compaction:
 - 900-token tool-schema maximum
 
 An unchanged second turn is required by CI to resend zero context-fragment tokens through the delta path.
+
+## Verified control-plane evidence
+
+GitHub Actions `Runtime Smoke` run #72 completed successfully on 2026-07-27.
+
+| Metric | Verified result |
+| --- | ---: |
+| Unhandled exceptions | 0 |
+| Context planning p50 | 9.19 ms |
+| Duplicate token savings | 37.77% |
+| Task-tag token savings | 26.40% |
+| Delta planning p50 | 1.12 ms |
+| Unchanged second-turn context tokens | 0 |
+| Delta replay savings | 100% |
+| Required-context overflow | 0 tokens |
+| Route ranking p50 | 0.20 ms |
+| Tool planning p50 | 0.46 ms |
+| Selected tool schemas | 4 tools / 132 estimated tokens |
+| Auth resolution p50 | 1.59 μs |
+
+Full runtime evidence is recorded in `Kyuha927/copilot/docs/runtime_verification_20260727.md`.
 
 ## Performance claim policy
 
