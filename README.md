@@ -4,15 +4,15 @@ ClauDeus is a provider-agnostic AI WorkOS bridge.
 
 It keeps complex AI work organized across ChatGPT, Codex, Antigravity, CLI tools, GUI-only tools, local runtimes, mobile uploads, skills, project memory, and dashboard surfaces.
 
-The goal is simple: ordinary users should not need to understand context windows, model routing, multi-agent orchestration, or handoff mechanics.
+The goal is simple: ordinary users should not need to understand context windows, model routing, multi-agent orchestration, authentication mechanics, or handoff plumbing.
 
 ## What ClauDeus does
 
 ```text
 user intent
-→ context pack
-→ provider adapter
-→ result collection
+→ context and tool budget
+→ authenticated model route
+→ failure-contained execution
 → handoff packet
 → dashboard card
 → next action
@@ -21,7 +21,11 @@ user intent
 ## Core ideas
 
 - **Context packs**: compact file-backed task state instead of fragile long chats.
+- **Universal model runtime**: every declared or discovered model becomes an independently ranked route.
+- **Authentication broker**: official OAuth PKCE/device flow, API key, environment, CLI, or local anonymous fallback.
 - **Provider adapters**: API, CLI, IDE, local, and user-approved GUI relay paths behind one workflow.
+- **Failure containment**: bounded retry, circuit breaker, model fallback, and readable structured failures.
+- **Token budgets**: duplicate/delta filtering and capability-scoped tool schemas.
 - **Handoff packets**: fresh-session summaries with next actions and title hints.
 - **Mobile inbox**: smartphone-only upload paths that can feed ClauDeus without desktop sync.
 - **Skills library**: short reviewed procedures that can be injected into context packs.
@@ -33,7 +37,7 @@ user intent
 | Component | Repo | Role |
 | --- | --- | --- |
 | Umbrella | `Kyuha927/ClauDeus` | product, contracts, CLI shell |
-| Runtime | `Kyuha927/copilot` | bridge hub, handoff packets, provider adapters |
+| Runtime | `Kyuha927/copilot` | auth broker, model discovery, routing, handoff packets, provider adapters |
 | Mobile Inbox | `Kyuha927/daily` | smartphone upload intake |
 | Dashboard | `Kyuha927/obsidian_dashboard_os` | user-facing work surface |
 | Skills | `Kyuha927/studio-agent` | skills and memory pack |
@@ -53,6 +57,15 @@ user intent
 ./dev provider-check
 ./dev mobile-inbox-check
 ./dev portfolio-status
+```
+
+Universal runtime commands live in `Kyuha927/copilot`:
+
+```bash
+python scripts/providerctl.py validate
+python scripts/providerctl.py list
+python scripts/cladeus_runtime.py run "inspect this repository" --capability coding
+python scripts/benchmark_control_plane.py --runs 5 --assert-targets
 ```
 
 ### Windows PowerShell
@@ -77,27 +90,33 @@ user intent
 
 - [Product Vision](Docs/PRODUCT_VISION.md)
 - [Architecture](Docs/ARCHITECTURE.md)
+- [Universal Model Runtime](Docs/UNIVERSAL_MODEL_RUNTIME.md)
 - [Provider Adapters](Docs/PROVIDER_ADAPTERS.md)
 - [Context Handoff Design](Docs/CONTEXT_HANDOFF_DESIGN.md)
+- [Context Priority Control](Docs/CONTEXT_PRIORITY_CONTROL.md)
 - [Mobile Inbox Connector](Docs/MOBILE_INBOX_CONNECTOR.md)
 - [Codex Approval Gate](Docs/CODEX_APPROVAL_GATE.md)
 
 ## Safety posture
 
-- Prefer official API/CLI routes when available.
+- Prefer official OAuth/API/CLI routes when available.
+- Do not claim OAuth for a provider that does not officially expose it.
 - GUI relay is opt-in and user-approved.
 - Default to dry-run or propose-only for risky operations.
-- Preserve raw logs for audit and replay.
+- Preserve redacted raw logs for audit and replay.
 - Active skills require review before use.
+- Treat “better than OpenCode/Pi” as a benchmark target until measured on the same workload.
 
 ## Current status
 
-ClauDeus v2 is being assembled from multiple existing repositories into a coherent AI WorkOS portfolio. The first target is a working end-to-end demo:
+ClauDeus v2 is being assembled from multiple existing repositories into a coherent AI WorkOS portfolio. The first complete path is:
 
 ```text
 mobile or web input
-→ context pack
-→ provider adapter
+→ priority-controlled context
+→ capability-scoped tools
+→ authenticated model route
+→ contained fallback
 → handoff packet
 → dashboard card
 ```
